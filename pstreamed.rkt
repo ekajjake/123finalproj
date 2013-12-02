@@ -8,6 +8,7 @@
 (require rsound/reverb-typed)
  
 (define ps (make-pstream))
+(define SILENCE (silence 1))
 ;;main-world is one of 0 (home screen) 1 (recorder) 2 (beat machine)
 (define-struct World (main-world record-screen pause? next-start-time Sounds1 Sounds2 Sounds3 Sounds4 Sounds5 Sounds6 Sounds7 Sounds8))
  
@@ -21,7 +22,7 @@
 (define-struct Sounds8 (pause-button 1o 1e 1+ 1a 2o 2e 2+ 2a 3o 3e 3+ 3a 4o 4e 4+ 4a))
 (define-struct record-screen (play1 play2 play3 stop1 stop2 stop3 record1 record2 record3 rec1 rec2 rec3))
  
-(define start-world (make-World 0 (make-record-screen 0 0 0 0 0 0 0 0 0 0 0 0) 0 0
+(define start-world (make-World 0 (make-record-screen 0 0 0 0 0 0 0 0 0 SILENCE SILENCE SILENCE) 0 0
                                    (make-Sounds1 (make-pstream) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
                                    (make-Sounds2 (make-pstream) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
                                    (make-Sounds3 (make-pstream) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
@@ -600,13 +601,13 @@
             ;;play
             [(inrange? x_position 400 500)
              (cond [(inrange? y_position 175 275)
-                    (both ((rs-filter play (record-screen-rec1 (World-record-screen world_state))) reverb) world_state)
+                    (both (play (rs-scale SCALER(rs-filter (record-screen-rec1 (World-record-screen world_state)) reverb))) world_state)
                     ]
                    [(inrange? y_position 300 400)                     
-                    (both ((rs-filter play (record-screen-rec2 (World-record-screen world_state))) reverb) world_state)
+                    (both (play (rs-scale SCALER(rs-filter (record-screen-rec2 (World-record-screen world_state)) reverb))) world_state)
                     ]
                    [(inrange? y_position 425 525)                    
-                    (both ((rs-filter play (record-screen-rec3 (World-record-screen world_state))) reverb) world_state)
+                    (both (play (rs-scale SCALER(rs-filter (record-screen-rec3 (World-record-screen world_state)) reverb))) world_state)
                     ]
                    [else world_state])]
             
@@ -1160,11 +1161,12 @@
  
 ;THE PSTREAM STARTS HERE OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
  
-(define S1 crash-cymbal) 
-(define S2 c-hi-hat-2)
-(define S3 o-hi-hat)
-(define S4 snare)
-(define S5 kick)
+(define SCALER .25)
+(define S1 (rs-scale SCALER crash-cymbal))
+(define S2 (rs-scale SCALER c-hi-hat-2))
+(define S3 (rs-scale SCALER o-hi-hat))
+(define S4 (rs-scale SCALER snare))
+(define S5 (rs-scale SCALER kick))
 
  
 (define time1 500)(define time2 500)(define time3 500)(define time4 500)(define time5 500)(define time6 500)(define time7 500)
@@ -1533,7 +1535,7 @@
     (Sounds5-4a (World-Sounds5 world_state)))
  
     (make-Sounds6 
-     (local [(define S6 (record-screen-rec1 (World-record-screen world_state)))]
+     (local [(define S6 (rs-scale SCALER (record-screen-rec1 (World-record-screen world_state))))]
      (all 
      (if (and (countss 0 world_state) (= 1 (Sounds6-1o (World-Sounds6 world_state)))) (pstream-queue (Sounds1-pause-button (World-Sounds1 world_state)) S6 
          (+ time1 (World-next-start-time world_state))) (Sounds6-pause-button (World-Sounds6 world_state)))
@@ -1602,7 +1604,7 @@
     (Sounds6-4a (World-Sounds6 world_state)))
 
     (make-Sounds7 
-     (local [(define S7 (record-screen-rec2 (World-record-screen world_state)))]
+     (local [(define S7 (rs-scale SCALER (record-screen-rec2 (World-record-screen world_state))))]
        (all 
      (if (and (countss 0 world_state) (= 1 (Sounds7-1o (World-Sounds7 world_state)))) (pstream-queue (Sounds1-pause-button (World-Sounds1 world_state)) S7 
          (+ time1 (World-next-start-time world_state))) (Sounds7-pause-button (World-Sounds7 world_state)))
@@ -1671,7 +1673,7 @@
     (Sounds7-4a (World-Sounds7 world_state)))
 
     (make-Sounds8 
-     (local [(define S8 (record-screen-rec3 (World-record-screen world_state)))]
+     (local [(define S8 (rs-scale SCALER (record-screen-rec3 (World-record-screen world_state))))]
     (all 
      (if (and (countss 0 world_state) (= 1 (Sounds8-1o (World-Sounds8 world_state)))) (pstream-queue (Sounds1-pause-button (World-Sounds1 world_state)) S8 
          (+ time1 (World-next-start-time world_state))) (Sounds8-pause-button (World-Sounds8 world_state)))
