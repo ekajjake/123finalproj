@@ -30,7 +30,7 @@
                                    (make-Sounds5 (make-pstream) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
                                    (make-Sounds6 (make-pstream) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
                                    (make-Sounds7 (make-pstream) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-                                   (make-Sounds8 (make-pstream) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) 0))
+                                   (make-Sounds8 (make-pstream) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) 400))
  
  
 ;the background of the program
@@ -423,7 +423,7 @@
                                35 600 clear_button)
                               260 600 pause_button)
                               100 500 (line 800 0 "blue"))
-                              (time-adjust world_state) 475 (rectangle 25 50 "solid" "red"))
+                              (World-tempo_pos world_state) 475 (rectangle 25 50 "solid" "red"))
                              600 600 back_button)
                             15 100 (text "Crash" 12 "blue"))
                            15 140 (text "Closed Hi-Hat" 12 "blue"))
@@ -468,11 +468,11 @@
 (define (mouse_handler world_state x_position y_position event_name) (if (equal? (World-main-world world_state) 0) 
                                                                          (mouse_home_screen world_state x_position y_position event_name) 
                                                                      (if (equal? (World-main-world world_state) 1) 
-                                                                         (mouse_record_screen world_state x_position y_position event_name)
-                                                                                                                       
-                                                                         (mouse_beat_screen world_state x_position y_position event_name)      
-                                                                                                                       )))
- 
+                                                                         (mouse_record_screen world_state x_position y_position event_name)                                                                     
+                                                                     
+                                                                      (mouse_beat_screen world_state x_position y_position event_name))))
+
+
 ;handles mouse functions for the home screen
 (define (mouse_home_screen world_state x_position y_position event_name) (if (equal? event_name "button-down") 
                                                                              (if (inrange? y_position 275 475) 
@@ -818,8 +818,9 @@
                         (World-tempo_pos world_state)
                         ))
  
+
 ;handles mouse functions for the "make beat" screen
-(define (mouse_beat_screen world_state x_position y_position event_name) (if (equal? event_name "button-down")
+(define (mouse_beat_screen world_state x_position y_position event_name) (if (or (equal? event_name "button-down") (equal? event_name "drag"))
        (cond 
            [(inrange? y_position 100 125)
                (cond 
@@ -1111,6 +1112,14 @@
    [(inrange? x_position 700 725)
     (update_Sounds 8 16 world_state)]
    [else world_state])]
+
+;handles mouse functions for the tempo changer
+[(inrange? y_position 450 550)
+ (make-World (World-main-world world_state)(World-record-screen world_state)(World-pause? world_state)
+             (World-next-start-time world_state)(World-Sounds1 world_state) (World-Sounds2 world_state)
+             (World-Sounds3 world_state)(World-Sounds4 world_state)(World-Sounds5 world_state)(World-Sounds6 world_state)
+             (World-Sounds7 world_state)(World-Sounds8 world_state) x_position)]
+
  
 [(and (inrange? x_position 600 700) (inrange? y_position 600 700)) 
  (make-World 0 (World-record-screen world_state) (World-pause? world_state) (World-next-start-time world_state)
@@ -1155,7 +1164,7 @@
  (make-World (World-main-world world_state)
              (World-record-screen world_state)
              0 (World-next-start-time world_state)
-             (make-Sounds1 (Sounds1-pause-button (World-Sounds1 world_state)) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+             (make-Sounds1 (Sounds1-pause-button (World-Sounds1 world_state)) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
              (make-Sounds2 (Sounds2-pause-button (World-Sounds2 world_state)) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
              (make-Sounds3 (Sounds3-pause-button (World-Sounds3 world_state)) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
              (make-Sounds4 (Sounds4-pause-button (World-Sounds4 world_state)) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
@@ -1194,9 +1203,9 @@
 (define S5 (rs-scale SCALER kick))
 
  
-(define time1 500)(define time2 500)(define time3 500)(define time4 500)(define time5 500)(define time6 500)(define time7 500)
-(define time8 500)(define time9 500)(define time10 500)(define time11 500)(define time12 500)(define time13 500)(define time14 500)
-(define time15 500)(define time16 500)
+(define time1 250)(define time2 250)(define time3 250)(define time4 250)(define time5 250)(define time6 250)(define time7 250)
+(define time8 250)(define time9 250)(define time10 250)(define time11 250)(define time12 250)(define time13 250)(define time14 250)
+(define time15 250)(define time16 250)
  
 (define (all a b c d e f g h i j k l m n o p)
   p)
@@ -1205,7 +1214,7 @@
               
    
 (define (time-to-play? world_state)
-  (< (- (World-next-start-time world_state) 500) (pstream-current-frame (Sounds1-pause-button (World-Sounds1 world_state)))))
+  (< (- (World-next-start-time world_state) 250) (pstream-current-frame (Sounds1-pause-button (World-Sounds1 world_state)))))
 
 (define (countss a world_state)
   (= a (modulo (Sounds1-counter (World-Sounds1 world_state)) 16)))
@@ -1220,16 +1229,16 @@
    (make-Sounds1 
     (all 
      (if (and (countss 0 world_state) (= 1 (Sounds1-1o (World-Sounds1 world_state)))) (pstream-queue (Sounds1-pause-button (World-Sounds1 world_state)) S1 
-         (+ 500 (World-next-start-time world_state))) (Sounds1-pause-button (World-Sounds1 world_state)))
+         (+ time1 (World-next-start-time world_state))) (Sounds1-pause-button (World-Sounds1 world_state)))
      
      (if (and (countss 1 world_state) (= 1 (Sounds1-1e (World-Sounds1 world_state)))) (pstream-queue (Sounds1-pause-button (World-Sounds1 world_state)) S1 
-         (+ 500 (World-next-start-time world_state))) (Sounds1-pause-button (World-Sounds1 world_state)))
+         (+ time2 (World-next-start-time world_state))) (Sounds1-pause-button (World-Sounds1 world_state)))
      
      (if (and (countss 2 world_state) (= 1 (Sounds1-1+ (World-Sounds1 world_state)))) (pstream-queue (Sounds1-pause-button (World-Sounds1 world_state)) S1 
-         (+ 500 (World-next-start-time world_state))) (Sounds1-pause-button (World-Sounds1 world_state)))
+         (+ time3 (World-next-start-time world_state))) (Sounds1-pause-button (World-Sounds1 world_state)))
      
      (if (and (countss 3 world_state) (= 1 (Sounds1-1a (World-Sounds1 world_state)))) (pstream-queue (Sounds1-pause-button (World-Sounds1 world_state)) S1 
-         (+ 500 (World-next-start-time world_state))) (Sounds1-pause-button (World-Sounds1 world_state)))
+         (+ time4 (World-next-start-time world_state))) (Sounds1-pause-button (World-Sounds1 world_state)))
      
      (if (and (countss 4 world_state) (= 1 (Sounds1-2o (World-Sounds1 world_state)))) (pstream-queue (Sounds1-pause-button (World-Sounds1 world_state)) S1 
          (+ time5 (World-next-start-time world_state))) (Sounds1-pause-button (World-Sounds1 world_state)))
@@ -1775,4 +1784,6 @@
           (on-mouse mouse_handler)
           (on-tick party)
           )
+
+
 
