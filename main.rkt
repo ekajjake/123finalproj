@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-intermediate-reader.ss" "lang")((modname change) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp")))))
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname main) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ())))
 ;BEATS
 (require 2htdp/image)
 (require 2htdp/universe)
@@ -422,7 +422,7 @@
                                  (underlay/xy background 155 600 play_button) 
                                35 600 clear_button)
                               260 600 pause_button)
-                              100 500 (line 800 0 "blue"))
+                              100 500 (line 425 0 "blue"))
                               (World-tempo_pos world_state) 475 (rectangle 25 50 "solid" "red"))
                              600 600 back_button)
                             15 100 (text "Crash" 12 "blue"))
@@ -450,7 +450,7 @@
       660 40 (text "+" 18 "blue")) 
      700 40 (text "a" 18 "blue")) 
     100 100 (button_grid world_state))
-   (line-mover world_state) 60 (line 0 400 "Red")))
+   (line-mover world_state) 60 (rectangle 5 400 "solid" "Red")))
  
 ;determines which screen to display
 (define (current_screen world_state)
@@ -1118,7 +1118,7 @@
  (make-World (World-main-world world_state)(World-record-screen world_state)(World-pause? world_state)
              (World-next-start-time world_state)(World-Sounds1 world_state) (World-Sounds2 world_state)
              (World-Sounds3 world_state)(World-Sounds4 world_state)(World-Sounds5 world_state)(World-Sounds6 world_state)
-             (World-Sounds7 world_state)(World-Sounds8 world_state) x_position)]
+             (World-Sounds7 world_state)(World-Sounds8 world_state) (cond [(< x_position 100) 100] [(> x_position 500) 500] [else x_position]))]
 
  
 [(and (inrange? x_position 600 700) (inrange? y_position 600 700)) 
@@ -1203,9 +1203,9 @@
 (define S5 (rs-scale SCALER kick))
 
  
-(define time1 250)(define time2 250)(define time3 250)(define time4 250)(define time5 250)(define time6 250)(define time7 250)
-(define time8 250)(define time9 250)(define time10 250)(define time11 250)(define time12 250)(define time13 250)(define time14 250)
-(define time15 250)(define time16 250)
+(define time1 100)(define time2 100)(define time3 100)(define time4 100)(define time5 100)(define time6 100)(define time7 100)
+(define time8 100)(define time9 100)(define time10 100)(define time11 100)(define time12 100)(define time13 100)(define time14 100)
+(define time15 100)(define time16 100)
  
 (define (all a b c d e f g h i j k l m n o p)
   p)
@@ -1214,7 +1214,7 @@
               
    
 (define (time-to-play? world_state)
-  (< (- (World-next-start-time world_state) 250) (pstream-current-frame (Sounds1-pause-button (World-Sounds1 world_state)))))
+  (< (- (World-next-start-time world_state) 100) (pstream-current-frame (Sounds1-pause-button (World-Sounds1 world_state)))))
 
 (define (countss a world_state)
   (= a (modulo (Sounds1-counter (World-Sounds1 world_state)) 16)))
@@ -1225,7 +1225,7 @@
    (World-main-world world_state)
    (World-record-screen world_state)
    (World-pause? world_state)
-   (+ 5200 (pstream-current-frame (Sounds1-pause-button (World-Sounds1 world_state))))
+   (+ (+ 11025 (* -16 (World-tempo_pos world_state))) (pstream-current-frame (Sounds1-pause-button (World-Sounds1 world_state))))
    (make-Sounds1 
     (all 
      (if (and (countss 0 world_state) (= 1 (Sounds1-1o (World-Sounds1 world_state)))) (pstream-queue (Sounds1-pause-button (World-Sounds1 world_state)) S1 
