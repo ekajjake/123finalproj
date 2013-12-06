@@ -6,6 +6,7 @@
 (require 2htdp/universe)
 (require rsound)
 (require rsound/reverb-typed)
+(require "does-recording-work.rkt")
 
 (define SILENCE (silence 1))
 (define ps (make-pstream))
@@ -34,17 +35,17 @@
  
  
 ;the background of the program
-(define background (square 750 "solid" "black"))
+(define background (bitmap/file "background.jpg"))
  
 ;buttons that will do various things
-(define play_button (rotate 270 (triangle 100 "solid" "green")))
+(define play_button (bitmap/file "play.png"))
 (define stop_button (square 100 "solid" "red"))
-(define record_button (underlay/xy (circle 50 "solid" "gray") 30 30 (circle 20 "solid" "red")))
-(define pause_button (underlay/xy (rectangle 25 100 "solid" "blue") 50 0 (rectangle 25 100 "solid" "blue")))
-(define back_button (text "BACK" 24 "blue"))
-(define clear_button (text "CLEAR" 24 "red"))
-(define unchecked_square (square 25 "solid" "gray"))
-(define checked_square (square 25 "solid" "green"))
+(define record_button (bitmap/file "record_button.png"))
+(define pause_button (bitmap/file "pause.png"))
+(define back_button (bitmap/file "back.png"))
+(define clear_button (bitmap/file "reset.png"))
+(define unchecked_square (bitmap/file "inactive.png"))
+(define checked_square (bitmap/file "active.png"))
  
  
  
@@ -55,13 +56,13 @@
  400 175 play_button) 
   400 425 play_button))
  
-;3 stop buttons for use on the record screen. 
+;3 record buttons for use on the record screen. 
 ;overlays on top of the 3 play buttons
-(define stop_buttons (underlay/xy   
+(define record_buttons (underlay/xy   
 (underlay/xy
-(underlay/xy play_buttons 275 300 stop_button)
- 275 175 stop_button) 
-  275 425 stop_button))
+(underlay/xy play_buttons 275 300 record_button)
+ 275 175 record_button) 
+  275 425 record_button))
  
  
 ;a row of toggle buttons for use on the "create beat" screen
@@ -353,26 +354,37 @@
  
  
 ;the home screen of the program
-(define home_screen  
+(define home_screen
+  (if (equal? (does-recording-work?) true)
   (underlay/xy 
    (underlay/xy 
     (underlay/xy     
      (underlay/xy
       (underlay/xy
     background 
-    100 275 (square 200 "solid" "red")) 
-   450 275 (square 200 "solid" "blue"))
+    100 300 (bitmap/file "mic.png")) 
+   450 300 (bitmap/file "drum.png"))
    265 100 (above (text "[on-tick party] Presents" 24 "white") (text "The BeatBox Machine" 24 "white")))
-   100 280 (rotate 45 (text "Record Your Voice Here" 24 "white")))
-   450 280 (rotate 45 (text "Create Your Beat Here" 24 "white"))))
+   100 280 (text "Record Your Voice" 24 "white"))
+   455 280 (text "Create Your Beat" 24 "white"))
+   (underlay/xy 
+    (underlay/xy     
+     (underlay/xy
+      (underlay/xy
+    background 
+    200 350 (text "Recording is Disabled" 24 "red")) 
+   450 300 (bitmap/file "drum.png"))
+   265 100 (above (text "[on-tick party] Presents" 24 "white") (text "The BeatBox Machine" 24 "white")))
+   455 280 (text "Create Your Beat" 24 "white"))
+  ))
 
 ;the record screen of the program
 (define record_screen (underlay/xy
 (underlay/xy   
 (underlay/xy
-(underlay/xy stop_buttons 155 300 record_button)
-155 175 record_button) 
-  155 425 record_button) 600 600 back_button))
+(underlay/xy record_buttons 195 345 (text "Sound 2" 18 "white"))
+195 220 (text "Sound 1" 18 "white")) 
+  195 465 (text "Sound 3" 18 "white")) 600 600 back_button))
  
 ;moves the line according to the time in the beat screen 
 #;(define (line-mover world_state)
@@ -387,7 +399,7 @@
         (World-tempo_pos world_state)]))
  
 ;the "create beat" screen of the programe
-(define (beat_screen world_state)
+(define (beat_screen world_state) (underlay/xy
   (underlay/xy
    (underlay/xy 
     (underlay/xy
@@ -419,38 +431,38 @@
                               (underlay/xy 
                                (underlay/xy
                                 (underlay/xy
-                                 (underlay/xy background 155 600 play_button) 
+                                 (underlay/xy background 145 600 play_button) 
                                35 600 clear_button)
                               260 600 pause_button)
-                              100 500 (line 425 0 "blue"))
-                              (World-tempo_pos world_state) 475 (rectangle 25 50 "solid" "red"))
+                              100 500 (line 425 0 "white"))
+                              (World-tempo_pos world_state) 475 (bitmap/file "slider.png"))
                              600 600 back_button)
-                            15 100 (text "Crash" 12 "blue"))
-                           15 140 (text "Closed Hi-Hat" 12 "blue"))
-                          15 180 (text "Open Hi-Hat" 12 "blue"))
-                         15 220 (text "Snare" 12 "blue"))
-                        15 260 (text "Kick" 12 "blue"))
-                       15 300 (text "Sound 1" 12 "blue"))
-                      15 340 (text "Sound 2" 12 "blue"))
-                     15 380 (text "Sound 3" 12 "blue"))
-                    100 40 (text "1" 18 "blue"))   
-                   140 40 (text "e" 18 "blue")) 
-                  180 40 (text "+" 18 "blue")) 
-                 220 40 (text "a" 18 "blue")) 
-                260 40 (text "2" 18 "blue")) 
-               300 40 (text "e" 18 "blue")) 
-              340 40 (text "+" 18 "blue")) 
-             380 40 (text "a" 18 "blue")) 
-            420 40 (text "3" 18 "blue")) 
-           460 40 (text "e" 18 "blue")) 
-          500 40 (text "+" 18 "blue")) 
-         540 40 (text "a" 18 "blue")) 
-        580 40 (text "4" 18 "blue")) 
-       620 40 (text "e" 18 "blue")) 
-      660 40 (text "+" 18 "blue")) 
-     700 40 (text "a" 18 "blue")) 
+                            15 100 (text "Crash" 12 "white"))
+                           15 140 (text "Closed Hi-Hat" 12 "white"))
+                          15 180 (text "Open Hi-Hat" 12 "white"))
+                         15 220 (text "Snare" 12 "white"))
+                        15 260 (text "Kick" 12 "white"))
+                       15 300 (text "Sound 1" 12 "white"))
+                      15 340 (text "Sound 2" 12 "white"))
+                     15 380 (text "Sound 3" 12 "white"))
+                    100 40 (text "1" 18 "white"))   
+                   140 40 (text "e" 18 "white")) 
+                  180 40 (text "+" 18 "white")) 
+                 220 40 (text "a" 18 "white")) 
+                260 40 (text "2" 18 "white")) 
+               300 40 (text "e" 18 "white")) 
+              340 40 (text "+" 18 "white")) 
+             380 40 (text "a" 18 "white")) 
+            420 40 (text "3" 18 "white")) 
+           460 40 (text "e" 18 "white")) 
+          500 40 (text "+" 18 "white")) 
+         540 40 (text "a" 18 "white")) 
+        580 40 (text "4" 18 "white")) 
+       620 40 (text "e" 18 "white")) 
+      660 40 (text "+" 18 "white")) 
+     700 40 (text "a" 18 "white")) 
     100 100 (button_grid world_state))
-   (line-mover world_state) 60 (rectangle 5 400 "solid" "Red")))
+   (line-mover world_state) 60 (rectangle 5 400 "solid" "Red")) 15 490 (text "Tempo" 12 "white")))
  
 ;determines which screen to display
 (define (current_screen world_state)
@@ -475,8 +487,8 @@
 
 ;handles mouse functions for the home screen
 (define (mouse_home_screen world_state x_position y_position event_name) (if (equal? event_name "button-down") 
-                                                                             (if (inrange? y_position 275 475) 
-                                                                                 (if (inrange? x_position 100 300) 
+                                                                             (if (inrange? y_position 325 475) 
+                                                                                 (if (and (inrange? x_position 125 275)  (equal? (does-recording-work?) true))
                                                                                      (make-World 1 (World-record-screen world_state) (World-pause? world_state)
                                                                                                  (World-next-start-time world_state)
                                                                                                    (World-Sounds1 world_state)
@@ -489,7 +501,7 @@
                                                                                                    (World-Sounds8 world_state)
                                                                                                    (World-tempo_pos world_state))
                                                                                                                                   
-                                                                                     (if (inrange? x_position 450 650) 
+                                                                                     (if (inrange? x_position 475 625) 
                                                                                          (make-World 2 (World-record-screen world_state)
                                                                                                      (World-pause? world_state)
                                                                                                      (World-next-start-time world_state)
@@ -509,7 +521,7 @@
   b)
 (define (mouse_record_screen world_state x_position y_position event_name) 
   (if (equal? event_name "button-down")
-      (cond [(inrange? x_position 155 255)
+      (cond [(inrange? x_position 275 375)
              ;;record
              (cond [(inrange? y_position 175 275)
                     (make-World (World-main-world world_state) 
@@ -564,7 +576,7 @@
                                                     (World-tempo_pos world_state))]
                    [else world_state])]
             ;;stop
-            [(inrange? x_position 275 375)
+           #; [(inrange? x_position 275 375)
              (cond [(inrange? y_position 175 275)
                     (make-World (World-main-world world_state) 
                                 (make-record-screen 0 0 0 0 0 0 0 0 0 
@@ -1133,7 +1145,7 @@
              (World-Sounds8 world_state)
              (World-tempo_pos world_state))]
  
-[(and (inrange? x_position 155 255) (inrange? y_position 600 700))
+[(and (inrange? x_position 145 245) (inrange? y_position 600 700))
  (make-World (World-main-world world_state) 
              (World-record-screen world_state) 
              1 (World-next-start-time world_state)
@@ -1784,4 +1796,5 @@
           (on-mouse mouse_handler)
           (on-tick party)
           )
+
 
