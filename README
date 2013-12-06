@@ -1,1 +1,2 @@
 A machine to create beats with your recorded samples accompanying other percussive sounds. Utilizes Rsound recording.
+To run the program ensure all of the files are in the same directory and run "main.rkt" Happy [on-tick party]ing!
